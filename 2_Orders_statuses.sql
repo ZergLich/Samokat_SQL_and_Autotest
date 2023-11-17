@@ -1,29 +1,17 @@
-SELECT	id, 
-	"courierId", 
-	track, 
-	"inDelivery", 
-	cancelled, 
-	finished,
+-- 1. убран вывод лишних полей
+-- 2. упрощен порядок использования CASE
+
+SELECT	track, 
 	CASE	-- вычисление статуса заказа на основе значений полей
-		-- inDelivery, cancelled и finished
-	    WHEN cancelled = true
-	    THEN -1
-	    ELSE
-	        CASE
-		    WHEN "inDelivery" = false
-		    THEN 0
-		    ELSE
-			CASE
-			    WHEN finished = true
-			    THEN 2
-			    ELSE 1
-			END
-		END
+		-- inDelivery, cancelled и finished с расчетом на то, что не может быть взаимоисключающих состояний в этих полях
+		WHEN finished = true
+		THEN 2
+	    	WHEN cancelled = true
+	    	THEN -1
+	    	WHEN "inDelivery" = true
+		THEN 1
+		ELSE 0
 	END
-	AS Status
+	AS "SimpleStatus"
 
 FROM "Orders";
-
--- ================================
-
--- the same query in one row: SELECT	id, "courierId", track, "inDelivery", cancelled, finished, CASE	WHEN cancelled = true THEN -1 ELSE CASE WHEN "inDelivery" = false THEN 0 ELSE CASE WHEN finished = true THEN 2 ELSE 1 END END END AS Status FROM "Orders";
